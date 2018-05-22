@@ -448,12 +448,11 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     }
 
     override fun findTopOne(): T? {
-        return findAll()?.firstOrNull()
+        return queryAll().list.firstOrNull()
     }
 
-    override fun findAll(): List<T>? {
-        val tResult = queryAll()
-        return if (tResult.line > 0) tResult.list else null
+    override fun findAll(): List<T> {
+        return queryAll().list
     }
 
     override fun findListByKeyValues(vararg args: String): List<T> {
