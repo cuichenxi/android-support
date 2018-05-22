@@ -14,7 +14,6 @@ import com.j256.ormlite.misc.TransactionManager
 import com.j256.ormlite.stmt.DeleteBuilder
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.stmt.StatementBuilder
-import com.j256.ormlite.stmt.UpdateBuilder
 import com.j256.ormlite.stmt.Where
 import com.j256.ormlite.table.TableUtils
 

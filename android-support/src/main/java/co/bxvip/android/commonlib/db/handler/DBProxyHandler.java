@@ -17,8 +17,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.SQLException;
 
-import static co.bxvip.android.commonlib.db.BuildConfig.logTAG;
-
 /**
  * @description : 数据库操作代理类：主要进行预处理、日志打印
  */
@@ -136,12 +134,12 @@ public class DBProxyHandler<T> implements InvocationHandler {
      */
     private void showLog(String msg){
         if(DBInnerUtils.Companion.getShowDBLog())
-            Log.d(logTAG,msg+" | "+mClass.getSimpleName()+" | "+databaseName);
+            Log.d(DBInnerUtils.Companion.getLogTAG(),msg+" | "+mClass.getSimpleName()+" | "+databaseName);
     }
 
     private void showErr(String msg){
         if(DBInnerUtils.Companion.getShowDBLog())
-            Log.e(logTAG,msg+" | "+mClass.getSimpleName()+" | "+databaseName);
+            Log.e(DBInnerUtils.Companion.getLogTAG(),msg+" | "+mClass.getSimpleName()+" | "+databaseName);
     }
 }
 

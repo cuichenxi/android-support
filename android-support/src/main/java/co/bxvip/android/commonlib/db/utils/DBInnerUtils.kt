@@ -3,7 +3,6 @@ package co.bxvip.android.commonlib.db.utils
 import co.bxvip.android.commonlib.db.DatabaseHelper
 import co.bxvip.android.commonlib.utils.CommonInit
 import co.bxvip.tools.ACache
-import java.util.ArrayList
 
 /**
  *
@@ -40,7 +39,7 @@ class DBInnerUtils private constructor() {
         }
 
         val DB_VERSION by lazy {
-            var version = aCache.getAsString("db-version-string")
+            var version = aCache.getAsString("check-db-version-string")
             if (version != null && version != "") {
                 try {
                     version.toInt()
@@ -50,16 +49,16 @@ class DBInnerUtils private constructor() {
             }
             if (version == null || version == "") {
                 version = "1"
-                aCache.put("db-version-string", version)
+                aCache.put("check-db-version-string", version)
             }
             version.toInt()
         }
 
         val DB_NAME by lazy {
-            var name = aCache.getAsString("db-name-string")
+            var name = aCache.getAsString("check-db-name-string")
             if (name == null || name == "") {
                 name = "ormlite-db-date.db"
-                aCache.put("db-name-string", name)
+                aCache.put("check-db-name-string", name)
             }
             name
         }
@@ -68,21 +67,11 @@ class DBInnerUtils private constructor() {
             DatabaseHelper()
         }
 
-        val TABLE_LIST by lazy {
-            var res = ArrayList<String>()
-            var tables = aCache.getAsObject("db-table-array-arraylist")
-            try {
-                if (tables != null)
-                    res.addAll(tables as ArrayList<String>)
-            } catch (e: Exception) {
-
-            }
-            res
-        }
-
         val showDBLog by lazy {
-            val debug = aCache.getAsObject("db-log-debug")
+            val debug = aCache.getAsObject("check-db-log-debug")
             debug != null && debug == "true"
         }
+
+        val logTAG = "**Plugin-Database-log**:"
     }
 }

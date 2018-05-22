@@ -6,11 +6,8 @@ import android.util.Log;
 
 import co.bxvip.android.commonlib.db.utils.DBInnerUtils;
 
-import static co.bxvip.android.commonlib.db.BuildConfig.logTAG;
-
 /**
  * 检测工具类
- *
  */
 public class CheckUtil {
 
@@ -35,7 +32,7 @@ public class CheckUtil {
      */
     private static void doLog(String msg) {
         if (DBInnerUtils.Companion.getShowDBLog())
-            Log.d(logTAG, msg);
+            Log.d(DBInnerUtils.Companion.getLogTAG(), msg);
     }
 
 
