@@ -39,16 +39,6 @@ open class BaseDao<T> : DBDao<T> {
 
     }
 
-    private fun initClazz(): Class<T>? {
-        val genType = javaClass.genericSuperclass
-        val params = (genType as ParameterizedType).actualTypeArguments
-        return if (params[0] is Class<*>) {
-            params[0] as Class<T>
-        } else {
-            null
-        }
-    }
-
     override fun add(model: T): Int {
         return baseDao!!.add(model).line
     }

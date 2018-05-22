@@ -448,7 +448,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     }
 
     override fun findTopOne(): T? {
-        return null
+        return findAll()?.firstOrNull()
     }
 
     override fun findAll(): List<T>? {
