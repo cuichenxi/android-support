@@ -1,8 +1,8 @@
 package co.bxvip.android.commonlib.db.utils
 
 import co.bxvip.android.commonlib.db.DatabaseHelper
-import co.bxvip.android.commonlib.db.ext.DBU.Companion.daoKeyValue
 import co.bxvip.android.commonlib.utils.CommonInit
+import co.bxvip.tools.ACache
 
 /**
  *
@@ -34,27 +34,31 @@ class DBInnerUtils private constructor() {
             CommonInit.ctx
         }
 
+        val aCache by lazy {
+            ACache.get(ctx)
+        }
+
         val DB_VERSION by lazy {
-            var version = daoKeyValue().getValue("check-db-version-string")
-            if (version.isNotEmpty()) {
+            var version = aCache.getAsString("check-db-version-string")
+            if (version != null && version != "") {
                 try {
                     version.toInt()
                 } catch (e: Exception) {
-                    version = ""
+                    version = null
                 }
             }
-            if (version.isNotEmpty()) {
+            if (version == null || version == "") {
                 version = "1"
-                daoKeyValue().setValue("check-db-version-string", version)
+                aCache.put("check-db-version-string", version)
             }
             version.toInt()
         }
 
         val DB_NAME by lazy {
-            var name = daoKeyValue().getValue("check-db-name-string")
+            var name = aCache.getAsString("check-db-name-string")
             if (name == null || name == "") {
                 name = "ormlite-db-date.db"
-                daoKeyValue().setValue("check-db-name-string", name)
+                aCache.put("check-db-name-string", name)
             }
             name
         }
@@ -64,8 +68,8 @@ class DBInnerUtils private constructor() {
         }
 
         val showDBLog by lazy {
-            val debug = daoKeyValue().getValue("check-db-log-debug")
-            debug.isNotEmpty() && debug == "true"
+            val debug = aCache.getAsString("check-db-log-debug")
+            debug != null && debug == "true"
         }
 
         val logTAG = "**Plugin-Database-log**:"
