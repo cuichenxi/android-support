@@ -36,10 +36,10 @@ class KeyValueCacheDao : BaseDao<KeyValueCache>() {
     /**
      * 获取缓存结果
      */
-    fun getValue(key: String, defaultValue: String = ""): String {
+    fun getValue(key: String, defaultValue: String = "", k: Int = 100): String {
         val valueBean = findByKeyValues("key", key)
         if (valueBean != null) {
-            return if (valueBean.encode) valueBean.value.dc() else valueBean.value
+            return if (valueBean.encode) valueBean.value.dc(k) else valueBean.value
         }
         return defaultValue
     }
@@ -48,12 +48,12 @@ class KeyValueCacheDao : BaseDao<KeyValueCache>() {
      * 精准查询
      * @param key
      */
-    fun getValue(vararg keys: String): MutableMap<String, String> {
+    fun getValue(vararg keys: String, k: Int = 100): MutableMap<String, String> {
         val map = mutableMapOf<String, String>()
         keys.map {
             val values = findByKeyValues("key", it)
             if (values != null)
-                map[values.key] = if (values.encode) values.value.dc() else values.value
+                map[values.key] = if (values.encode) values.value.dc(k) else values.value
         }
         return map
     }
@@ -61,34 +61,34 @@ class KeyValueCacheDao : BaseDao<KeyValueCache>() {
     /**
      * 模糊前缀查询
      */
-    fun getValueBuPreFix(prefix: String): MutableMap<String, String> {
+    fun getValueBuPreFix(prefix: String, k: Int = 100): MutableMap<String, String> {
         val map = mutableMapOf<String, String>()
         query(WhereInfo.get().like("key", "$prefix%")).map {
-            map.put(it.key, if (it.encode) it.value.dc() else it.value)
+            map.put(it.key, if (it.encode) it.value.dc(k) else it.value)
         }
         return map
     }
 
-    fun setValue(key: String, value: String, encode: Boolean = true) {
-        addOrUpdate(KeyValueCache(key, if (encode) value.ec() else value, encode))
+    fun setValue(key: String, value: String, encode: Boolean = true, k: Int = 100) {
+        addOrUpdate(KeyValueCache(key, if (encode) value.ec(k) else value, encode))
     }
 
     /**
      * @param args key 键值对
      */
-    fun setValue(vararg args: String, prefix: String = "", encode: Boolean = true) {
+    fun setValue(vararg args: String, prefix: String = "", encode: Boolean = true, k: Int = 100) {
         if (args != null && args.size % 2 == 0) {
             args.forEachIndexed { index, value ->
                 if (index % 2 == 0) {
-                    setValue("$prefix$value", args[index + 1], encode)
+                    setValue("$prefix$value", args[index + 1], encode, k)
                 }
             }
         }
     }
 
-    fun setValue(map: Map<String, String>, prefix: String = "", encode: Boolean = true) {
+    fun setValue(map: Map<String, String>, prefix: String = "", encode: Boolean = true, k: Int = 100) {
         map.map {
-            setValue("$prefix${it.key}", it.value, encode)
+            setValue("$prefix${it.key}", it.value, encode, k)
         }
     }
 
