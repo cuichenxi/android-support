@@ -1,8 +1,8 @@
-package co.bxvip.android.commonlib.db.utils
+package co.bxvip.android.commonlib.db.ext
 
-import co.bxvip.android.commonlib.db.DatabaseHelper
-import co.bxvip.android.commonlib.db.ext.DBU.Companion.daoKeyValue
-import co.bxvip.android.commonlib.utils.CommonInit
+import co.bxvip.android.commonlib.db.BaseDao
+import co.bxvip.android.commonlib.db.info.WhereInfo
+import com.j256.ormlite.field.DatabaseField
 
 /**
  *
@@ -23,51 +23,85 @@ import co.bxvip.android.commonlib.utils.CommonInit
  *
  * <pre>
  *     author: vic
- *     time  : 18-5-20
- *     desc  : ${END}
+ *     time  : 18-5-29
+ *     desc  : key-value 缓存
  * </pre>
  */
+data class KeyValueCache(@DatabaseField(id = true, canBeNull = false) var key: String = "",
+                         @DatabaseField var value: String = "",
+                         @DatabaseField var encode: Boolean = true)
 
-class DBInnerUtils private constructor() {
-    companion object {
-        val ctx by lazy {
-            CommonInit.ctx
+class KeyValueCacheDao : BaseDao<KeyValueCache>() {
+
+    /**
+     * 获取缓存结果
+     */
+    fun getValue(key: String, defaultValue: String = ""): String {
+        val valueBean = findByKeyValues("key", key)
+        if (valueBean != null) {
+            return if (valueBean.encode) valueBean.value.dc() else valueBean.value
         }
+        return defaultValue
+    }
 
-        val DB_VERSION by lazy {
-            var version = daoKeyValue().getValue("check-db-version-string")
-            if (version.isNotEmpty()) {
-                try {
-                    version.toInt()
-                } catch (e: Exception) {
-                    version = ""
+    /**
+     * 精准查询
+     * @param key
+     */
+    fun getValue(vararg keys: String): MutableMap<String, String> {
+        val map = mutableMapOf<String, String>()
+        keys.map {
+            val values = findByKeyValues("key", it)
+            if (values != null)
+                map[values.key] = if (values.encode) values.value.dc() else values.value
+        }
+        return map
+    }
+
+    /**
+     * 模糊前缀查询
+     */
+    fun getValueBuPreFix(prefix: String): MutableMap<String, String> {
+        val map = mutableMapOf<String, String>()
+        query(WhereInfo.get().like("key", "$prefix%")).map {
+            map.put(it.key, if (it.encode) it.value.dc() else it.value)
+        }
+        return map
+    }
+
+    fun setValue(key: String, value: String, encode: Boolean = true) {
+        addOrUpdate(KeyValueCache(key, if (encode) value.ec() else value, encode))
+    }
+
+    /**
+     * @param args key 键值对
+     */
+    fun setValue(vararg args: String, prefix: String = "", encode: Boolean = true) {
+        if (args != null && args.size % 2 == 0) {
+            args.forEachIndexed { index, value ->
+                if (index % 2 == 0) {
+                    setValue("$prefix$value", args[index + 1], encode)
                 }
             }
-            if (version.isNotEmpty()) {
-                version = "1"
-                daoKeyValue().setValue("check-db-version-string", version)
-            }
-            version.toInt()
         }
+    }
 
-        val DB_NAME by lazy {
-            var name = daoKeyValue().getValue("check-db-name-string")
-            if (name == null || name == "") {
-                name = "ormlite-db-date.db"
-                daoKeyValue().setValue("check-db-name-string", name)
-            }
-            name
+    fun setValue(map: Map<String, String>, prefix: String = "", encode: Boolean = true) {
+        map.map {
+            setValue("$prefix${it.key}", it.value, encode)
         }
+    }
 
-        val dbInstance by lazy {
-            DatabaseHelper()
+    /**
+     * 删除前缀 key
+     */
+    fun deleteByPrefix(prefix: String) {
+        delete(WhereInfo.get().like("key", "$prefix%"))
+    }
+
+    fun deleteByKeys(vararg keys: String) {
+        keys.map {
+            delete(WhereInfo.get().equal("key", it))
         }
-
-        val showDBLog by lazy {
-            val debug = daoKeyValue().getValue("check-db-log-debug")
-            debug.isNotEmpty() && debug == "true"
-        }
-
-        val logTAG = "**Plugin-Database-log**:"
     }
 }

@@ -1,8 +1,5 @@
-package co.bxvip.android.commonlib.db.utils
+package co.bxvip.android.commonlib.db.ext
 
-import co.bxvip.android.commonlib.db.DatabaseHelper
-import co.bxvip.android.commonlib.db.ext.DBU.Companion.daoKeyValue
-import co.bxvip.android.commonlib.utils.CommonInit
 
 /**
  *
@@ -23,51 +20,52 @@ import co.bxvip.android.commonlib.utils.CommonInit
  *
  * <pre>
  *     author: vic
- *     time  : 18-5-20
+ *     time  : 18-5-29
  *     desc  : ${END}
  * </pre>
  */
 
-class DBInnerUtils private constructor() {
+/**
+ *  加密
+ *  @param key 秘钥，即偏移量
+ *  @return 返回加密后的数据
+ *
+ */
+fun String.ec(key: Int = 100): String {
+    val array = this.toCharArray()
+    for (i in array.indices) {
+        array[i] = (array[i].toInt() + key).toChar()
+    }
+    return String(array)
+}
+
+/**
+ *  解密
+ *  @param key 秘钥，即偏移量
+ *  @return 返回解密后的数据  */
+fun String.dc(key: Int = 100): String {
+    val array = this.toCharArray()
+    for (i in array.indices) {
+        array[i] = (array[i].toInt() - key).toChar()
+    }
+    return String(array)
+}
+
+class DBU private constructor() {
     companion object {
-        val ctx by lazy {
-            CommonInit.ctx
-        }
-
-        val DB_VERSION by lazy {
-            var version = daoKeyValue().getValue("check-db-version-string")
-            if (version.isNotEmpty()) {
-                try {
-                    version.toInt()
-                } catch (e: Exception) {
-                    version = ""
-                }
+        private var dao: KeyValueCacheDao? = null
+        fun getKeyValue(key: String): String {
+            if (dao == null) {
+                dao = KeyValueCacheDao()
             }
-            if (version.isNotEmpty()) {
-                version = "1"
-                daoKeyValue().setValue("check-db-version-string", version)
+            return dao!!.getValue(key)
+        }
+
+        fun daoKeyValue(): KeyValueCacheDao {
+            if (dao == null) {
+                dao = KeyValueCacheDao()
             }
-            version.toInt()
+            return dao!!
         }
-
-        val DB_NAME by lazy {
-            var name = daoKeyValue().getValue("check-db-name-string")
-            if (name == null || name == "") {
-                name = "ormlite-db-date.db"
-                daoKeyValue().setValue("check-db-name-string", name)
-            }
-            name
-        }
-
-        val dbInstance by lazy {
-            DatabaseHelper()
-        }
-
-        val showDBLog by lazy {
-            val debug = daoKeyValue().getValue("check-db-log-debug")
-            debug.isNotEmpty() && debug == "true"
-        }
-
-        val logTAG = "**Plugin-Database-log**:"
     }
 }
