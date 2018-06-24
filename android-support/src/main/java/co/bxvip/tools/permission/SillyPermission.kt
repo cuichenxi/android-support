@@ -107,6 +107,11 @@ object SillyPermission {
 
     }
 
+    fun onDestroy(){
+        mPermissions = null
+        mSillyPermissionCall =null
+    }
+
     /**
      * 权限整理
      */
