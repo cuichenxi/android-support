@@ -39,7 +39,7 @@ public class Storage {
         String appDirRootPath;
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
-            appDirRootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + appName + File.separator;
+            appDirRootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "Android" + File.separator+ "data" + File.separator + appName + File.separator;
         } else {
             appDirRootPath = context.getCacheDir().getPath() + File.separator + appName + File.separator;
         }
