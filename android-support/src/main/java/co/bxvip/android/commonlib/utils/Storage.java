@@ -1,8 +1,11 @@
-package co.bxvip.android.commonlib.db.ext
+package co.bxvip.android.commonlib.utils;
 
+import android.content.Context;
+import android.os.Environment;
+
+import java.io.File;
 
 /**
- *
  * ┌───┐ ┌───┬───┬───┬───┐ ┌───┬───┬───┬───┐ ┌───┬───┬───┬───┐ ┌───┬───┬───┐
  * │Esc│ │ F1│ F2│ F3│ F4│ │ F5│ F6│ F7│ F8│ │ F9│F10│F11│F12│ │P/S│S L│P/B│ ┌┐    ┌┐    ┌┐
  * └───┘ └───┴───┴───┴───┘ └───┴───┴───┴───┘ └───┴───┴───┴───┘ └───┴───┴───┘ └┘    └┘    └┘
@@ -17,55 +20,65 @@ package co.bxvip.android.commonlib.db.ext
  * ├────┬──┴─┬─┴──┬┴───┴───┴───┴───┴───┴──┬┴───┼───┴┬────┬────┤┌───┼───┼───┐├───┴───┼───┤ E││
  * │Ctrl│Ray │Alt │         Space         │ Alt│code│fuck│Ctrl││ ← │ ↓ │ → ││   0   │ . │←─┘│
  * └────┴────┴────┴───────────────────────┴────┴────┴────┴────┘└───┴───┴───┘└───────┴───┴───┘
- *
+ * <p>
  * <pre>
  *     author: vic
- *     time  : 18-5-29
- *     desc  : ${END}
+ *     time  : 18-6-26
+ *     updateTime: 18-6-26
+ *     desc  : @since 1.0.8 fix version you need add try catch() , some plugin-sdk not include this class
  * </pre>
  */
+public class Storage {
+    private static final String IMAGELOADER_SEPARATOR = "imageloader";
+    private static final String DATABASE_SEPARATOR = "database";
 
-/**
- *  加密
- *  @param key 秘钥，即偏移量
- *  @return 返回加密后的数据
- *
- */
-fun String.ec(key: Int = 100): String {
-    val array = this.toCharArray()
-    for (i in array.indices) {
-        array[i] = (array[i].toInt() + key).toChar()
-    }
-    return String(array)
-}
-
-/**
- *  解密
- *  @param key 秘钥，即偏移量
- *  @return 返回解密后的数据  */
-fun String.dc(key: Int = 100): String {
-    val array = this.toCharArray()
-    for (i in array.indices) {
-        array[i] = (array[i].toInt() - key).toChar()
-    }
-    return String(array)
-}
-
-class DBU private constructor() {
-    companion object {
-        private var dao: KeyValueCacheDao? = null
-        fun getKeyValue(key: String): String {
-            if (dao == null) {
-                dao = KeyValueCacheDao()
-            }
-            return dao?.getValue(key)?:""
+    /**
+     * 得到该应用的缓存根目录 * * @param context 上下文 * @param appName 应用名称 * @return 应用的缓存根目录
+     */
+    public static File getRootCache(Context context, String appName) {
+        String appDirRootPath;
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            appDirRootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + appName + File.separator;
+        } else {
+            appDirRootPath = context.getCacheDir().getPath() + File.separator + appName + File.separator;
         }
-
-        fun daoKeyValue(): KeyValueCacheDao? {
-            if (dao == null) {
-                dao = KeyValueCacheDao()
-            }
-            return dao
+        File dirCache = new File(appDirRootPath);
+        if (!dirCache.exists()) {
+            dirCache.mkdirs();
         }
+        return dirCache;
+    }
+
+    /**
+     * 得到该应用的imageloader的缓存目录
+     *
+     * @param context 上下文
+     * @param appName 应用名称
+     * @return imageloader的缓存目录
+     */
+    public static File getImageLoaderCache(Context context, String appName) {
+        String imageLoaderCachePath = getRootCache(context, appName).getPath() + File.separator + IMAGELOADER_SEPARATOR + File.separator;
+        File file = new File(imageLoaderCachePath);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        return file;
+    }
+
+    /**
+     * 得到数据库目录
+     *
+     * @param context 上下文
+     * @param appName 应用名称
+     * @return 数据库
+     */
+    public static File getDataBaseCache(Context context, String appName) {
+        String avatarCachePath = getRootCache(context, appName).getPath() + File.separator + DATABASE_SEPARATOR + File.separator;
+        File file = new File(avatarCachePath);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        return file;
     }
 }

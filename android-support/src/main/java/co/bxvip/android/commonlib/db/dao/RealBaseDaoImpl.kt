@@ -26,7 +26,7 @@ import java.util.concurrent.Executors
 /**
  * @author : zhousf
  */
-class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
+class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>?) : RealBaseDao<T> {
 
     init {
         if (executorService == null)
@@ -37,7 +37,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun add(model: T): Result<T> {
         val result = Result<T>(Result.LINE)
         try {
-            result.line = dao.create(model)
+            result.line = dao?.create(model) ?: 0
         } catch (e: Exception) {
             result.exception = e
         }
@@ -48,7 +48,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun add(list: List<T>): Result<T> {
         val result = Result<T>(Result.LINE)
         try {
-            result.line = dao.create(list)
+            result.line = dao?.create(list) ?: 0
         } catch (e: Exception) {
             result.exception = e
         }
@@ -59,8 +59,8 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun addOrUpdate(model: T): Result<T> {
         val result = Result<T>(Result.LINE)
         try {
-            val status = dao.createOrUpdate(model)
-            result.line = status.numLinesChanged
+            val status = dao?.createOrUpdate(model)
+            result.line = status?.numLinesChanged ?: 0
         } catch (e: Exception) {
             result.exception = e
         }
@@ -82,7 +82,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun addIfNotExists(model: T): Result<T> {
         val result = Result<T>(Result.MODEL)
         try {
-            result.model = dao.createIfNotExists(model)
+            result.model = dao?.createIfNotExists(model)
         } catch (e: Exception) {
             result.exception = e
         }
@@ -94,7 +94,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
         var line = 0
         val result = Result<T>(Result.LINE)
         try {
-            line = dao.delete(model)
+            line = dao?.delete(model) ?: 0
             result.line = line
         } catch (e: Exception) {
             result.exception = e
@@ -106,7 +106,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun delete(list: List<T>): Result<T> {
         val result = Result<T>(Result.LINE)
         try {
-            result.line = dao.delete(list)
+            result.line = dao?.delete(list) ?: 0
         } catch (e: Exception) {
             result.exception = e
         }
@@ -117,9 +117,9 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun delete(whereInfo: WhereInfo): Result<T> {
         val result = Result<T>(Result.LINE)
         try {
-            var deleteBuilder = dao.deleteBuilder()
+            var deleteBuilder = dao?.deleteBuilder()
             deleteBuilder = fetchQueryBuilder(deleteBuilder, whereInfo) as DeleteBuilder<T, Long>
-            result.line = dao.delete(deleteBuilder.prepare())
+            result.line = dao?.delete(deleteBuilder.prepare()) ?: 0
         } catch (e: Exception) {
             result.exception = e
         }
@@ -134,7 +134,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun update(model: T): Result<T> {
         val result = Result<T>(Result.LINE)
         try {
-            result.line = dao.update(model)
+            result.line = dao?.update(model) ?: 0
         } catch (e: Exception) {
             result.exception = e
         }
@@ -145,15 +145,15 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun update(whereInfo: WhereInfo): Result<T> {
         val result = Result<T>(Result.LINE)
         try {
-            val queryBuilder = dao.queryBuilder()
-            val preparedUpdate = dao.updateBuilder()
+            val queryBuilder = dao?.queryBuilder()
+            val preparedUpdate = dao?.updateBuilder()
             for (where in whereInfo.wheres) {
                 if (where.op == co.bxvip.android.commonlib.db.info.Where.UPDATE) {
-                    preparedUpdate.updateColumnValue(where.name, where.value)
+                    preparedUpdate?.updateColumnValue(where.name, where.value)
                 }
             }
-            preparedUpdate.setWhere(fetchWhere(queryBuilder, whereInfo))
-            result.line = preparedUpdate.update()
+            preparedUpdate?.setWhere(fetchWhere(queryBuilder, whereInfo))
+            result.line = preparedUpdate?.update() ?: 0
         } catch (e: Exception) {
             result.exception = e
         }
@@ -164,7 +164,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun queryAll(): Result<T> {
         val result = Result<T>(Result.LIST)
         try {
-            result.list = dao.queryForAll()
+            result.list = dao?.queryForAll()
         } catch (e: Exception) {
             result.exception = e
         }
@@ -175,9 +175,9 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun queryAll(orderInfo: OrderInfo): Result<T> {
         val result = Result<T>(Result.LIST)
         try {
-            val queryBuilder = dao.queryBuilder()
+            val queryBuilder = dao?.queryBuilder()
             orderBy(queryBuilder, orderInfo.orders)
-            result.list = dao.query(queryBuilder.prepare())
+            result.list = dao?.query(queryBuilder?.prepare())
         } catch (e: Exception) {
             result.exception = e
         }
@@ -188,10 +188,10 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun query(whereInfo: WhereInfo): Result<T> {
         val result = Result<T>(Result.LIST)
         try {
-            var queryBuilder = dao.queryBuilder()
+            var queryBuilder = dao?.queryBuilder()
             orderBy(queryBuilder, whereInfo.orders)
             queryBuilder = fetchQueryBuilder(queryBuilder, whereInfo) as QueryBuilder<T, Long>
-            result.list = dao.query(queryBuilder.prepare())
+            result.list = dao?.query(queryBuilder.prepare())
         } catch (e: Exception) {
             result.exception = e
         }
@@ -203,7 +203,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
         var all: List<T> = ArrayList()
         val result = Result<T>(Result.LIST)
         try {
-            var queryBuilder = dao.queryBuilder()
+            var queryBuilder = dao?.queryBuilder()
             orderBy(queryBuilder, whereInfo.orders)
             var offset = whereInfo.currentPage
             if (offset != 0) {
@@ -212,7 +212,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
             queryBuilder = fetchQueryBuilder(queryBuilder, whereInfo) as QueryBuilder<T, Long>
             queryBuilder.offset(offset.toLong())
             queryBuilder.limit(whereInfo.limit.toLong())
-            all = dao.query(queryBuilder.prepare())
+            all = dao?.query(queryBuilder.prepare()) ?: arrayListOf()
             whereInfo.currentPage = ++whereInfo.currentPage
             whereInfo.size = all.size
             result.list = all
@@ -226,7 +226,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun query(queryBuilder: QueryBuilder<T, Int>): Result<T> {
         val result = Result<T>(Result.LIST)
         try {
-            result.list = dao.query(queryBuilder.prepare())
+            result.list = dao?.query(queryBuilder.prepare())
         } catch (e: Exception) {
             result.exception = e
         }
@@ -241,13 +241,13 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun countOf(whereInfo: WhereInfo?): Result<T> {
         val result = Result<T>(Result.COUNT)
         try {
-            var queryBuilder = dao.queryBuilder()
-            queryBuilder.setCountOf(true)
+            var queryBuilder = dao?.queryBuilder()
+            queryBuilder?.setCountOf(true)
             if (null != whereInfo) {
                 queryBuilder = fetchQueryBuilder(queryBuilder, whereInfo) as QueryBuilder<T, Long>
-                result.setCount(dao.countOf(queryBuilder.prepare()))
+                result.setCount(dao?.countOf(queryBuilder.prepare()) ?: 0)
             } else {
-                result.setCount(dao.countOf())
+                result.setCount(dao?.countOf() ?: 0)
             }
         } catch (e: Exception) {
             result.exception = e
@@ -259,10 +259,10 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun isExist(whereInfo: WhereInfo): Result<T> {
         val result = Result<T>(Result.IS_EXIST)
         try {
-            var queryBuilder = dao.queryBuilder()
+            var queryBuilder = dao?.queryBuilder()
             queryBuilder = fetchQueryBuilder(queryBuilder, whereInfo) as QueryBuilder<T, Long>
             queryBuilder.setCountOf(true)
-            result.isExist = dao.countOf(queryBuilder.prepare()) > 0
+            result.isExist = dao?.countOf(queryBuilder.prepare()) ?: 0 > 0
         } catch (e: Exception) {
             result.exception = e
         }
@@ -273,7 +273,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun executeRaw(statement: String, vararg arguments: String): Result<T> {
         val result = Result<T>(Result.LINE)
         try {
-            result.line = dao.executeRaw(statement, *arguments)
+            result.line = dao?.executeRaw(statement, *arguments) ?: 0
         } catch (e: Exception) {
             result.exception = e
         }
@@ -284,7 +284,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun clearTable(): Result<T> {
         val result = Result<T>(Result.LINE)
         try {
-            result.line = TableUtils.clearTable(dao.connectionSource, dao.dataClass)
+            result.line = TableUtils.clearTable(dao?.connectionSource, dao?.dataClass)
         } catch (e: Exception) {
             result.exception = e
         }
@@ -295,7 +295,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     override fun dropTable(): Result<T> {
         val result = Result<T>(Result.LINE)
         try {
-            if (dao.isTableExists) {
+            if (dao?.isTableExists == true) {
                 result.line = TableUtils.dropTable<T, Any>(dao.connectionSource, dao.dataClass, false)
             }
         } catch (e: Exception) {
@@ -305,16 +305,16 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
         return result
     }
 
-    override fun fetchDao(): Dao<T, Long> {
+    override fun fetchDao(): Dao<T, Long>? {
         return dao
     }
 
     override fun getTableName(): String {
-        return dao.tableName
+        return dao?.tableName ?: ""
     }
 
     override fun callInTransaction(callable: Callable<T>) {
-        val transactionManager = TransactionManager(dao.connectionSource)
+        val transactionManager = TransactionManager(dao?.connectionSource)
         try {
             transactionManager.callInTransaction(callable)
         } catch (e: Exception) {
@@ -325,7 +325,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
 
     override fun <CT> callBatchTasks(callable: Callable<CT>): CT? {
         try {
-            return dao.callBatchTasks(callable)
+            return dao?.callBatchTasks(callable)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -335,7 +335,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
 
     override fun <T> asyncTask(easyRun: DBRun<T>?) {
         if (null != easyRun) {
-            executorService!!.execute {
+            executorService?.execute {
                 try {
                     val data = easyRun.run()
                     val info = MessageInfo<T>()
@@ -352,11 +352,11 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
 
 
     @Throws(SQLException::class)
-    private fun fetchWhere(queryBuilder: StatementBuilder<T, Long>, whereInfo: WhereInfo): Where<T, Long>? {
+    private fun fetchWhere(queryBuilder: StatementBuilder<T, Long>?, whereInfo: WhereInfo): Where<T, Long>? {
         val wheres = whereInfo.wheres
         var whereBuilder: Where<T, Long>? = null
         if (!wheres.isEmpty()) {
-            whereBuilder = queryBuilder.where()
+            whereBuilder = queryBuilder?.where()
             var isFirst = true
             for (i in wheres.indices) {
                 val where = wheres[i]
@@ -368,43 +368,43 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
                 }
                 // 等于
                 if (co.bxvip.android.commonlib.db.info.Where.EQ == where.op) {
-                    whereBuilder!!.eq(where.name, where.value)
+                    whereBuilder?.eq(where.name, where.value)
                 }
                 // 模糊查询
                 if (co.bxvip.android.commonlib.db.info.Where.LIKE == where.op) {
-                    whereBuilder!!.like(where.name, where.value)
+                    whereBuilder?.like(where.name, where.value)
                 }
                 // between
                 if (co.bxvip.android.commonlib.db.info.Where.BETWEEN == where.op) {
-                    whereBuilder!!.between(where.name, where.low, where.high)
+                    whereBuilder?.between(where.name, where.low, where.high)
                 }
                 // lt 小于
                 if (co.bxvip.android.commonlib.db.info.Where.LT.endsWith(where.op)) {
-                    whereBuilder!!.lt(where.name, where.value)
+                    whereBuilder?.lt(where.name, where.value)
                 }
                 // gt 大于
                 if (co.bxvip.android.commonlib.db.info.Where.GT.endsWith(where.op)) {
-                    whereBuilder!!.gt(where.name, where.value)
+                    whereBuilder?.gt(where.name, where.value)
                 }
                 // ge 大于等于
                 if (co.bxvip.android.commonlib.db.info.Where.GE.endsWith(where.op)) {
-                    whereBuilder!!.ge(where.name, where.value)
+                    whereBuilder?.ge(where.name, where.value)
                 }
                 // le 小于等于
                 if (co.bxvip.android.commonlib.db.info.Where.LE.endsWith(where.op)) {
-                    whereBuilder!!.le(where.name, where.value)
+                    whereBuilder?.le(where.name, where.value)
                 }
                 // ne 不等于
                 if (co.bxvip.android.commonlib.db.info.Where.NE.endsWith(where.op)) {
-                    whereBuilder!!.ne(where.name, where.value)
+                    whereBuilder?.ne(where.name, where.value)
                 }
                 // in 包含
                 if (co.bxvip.android.commonlib.db.info.Where.IN.endsWith(where.op)) {
-                    whereBuilder!!.`in`(where.name, *where.values)
+                    whereBuilder?.`in`(where.name, *where.values)
                 }
                 // notIn 不包含
                 if (co.bxvip.android.commonlib.db.info.Where.NOT_IN.endsWith(where.op)) {
-                    whereBuilder!!.notIn(where.name, *where.values)
+                    whereBuilder?.notIn(where.name, *where.values)
                 }
             }
         }
@@ -416,7 +416,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
      * 构建查询条件
      */
     @Throws(SQLException::class)
-    private fun fetchQueryBuilder(queryBuilder: StatementBuilder<T, Long>, whereInfo: WhereInfo): StatementBuilder<T, Long> {
+    private fun fetchQueryBuilder(queryBuilder: StatementBuilder<T, Long>?, whereInfo: WhereInfo): StatementBuilder<T, Long>? {
         fetchWhere(queryBuilder, whereInfo)
         return queryBuilder
     }
@@ -427,10 +427,10 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     private fun appendAnd(whereBuilder: Where<T, Long>?, where: co.bxvip.android.commonlib.db.info.Where, isFirst: Boolean): Boolean {
         if (!isFirst) {
             if (co.bxvip.android.commonlib.db.info.Where.AND == where.andOr) {
-                whereBuilder!!.and()
+                whereBuilder?.and()
             }
             if (co.bxvip.android.commonlib.db.info.Where.OR.endsWith(where.andOr)) {
-                whereBuilder!!.or()
+                whereBuilder?.or()
             }
         }
         return false
@@ -439,10 +439,10 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
     /**
      * 排序
      */
-    private fun orderBy(queryBuilder: QueryBuilder<T, Long>, orders: Map<String, Boolean>) {
+    private fun orderBy(queryBuilder: QueryBuilder<T, Long>?, orders: Map<String, Boolean>) {
         if (!orders.isEmpty()) {
             for ((key, value) in orders) {
-                queryBuilder.orderBy(key, value)
+                queryBuilder?.orderBy(key, value)
             }
         }
     }
@@ -464,7 +464,7 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
             i += 2
         }
         try {
-            list.addAll(dao.queryForFieldValuesArgs(map))
+            list.addAll(dao?.queryForFieldValuesArgs(map) ?: arrayListOf())
         } catch (e: SQLException) {
             e.printStackTrace()
         }
@@ -474,17 +474,17 @@ class RealBaseDaoImpl<T>(private val dao: Dao<T, Long>) : RealBaseDao<T> {
 
     override fun findByKeyValues(vararg args: String): T? {
         try {
-            val builder = dao.queryBuilder()
-            val where = builder.where()
+            val builder = dao?.queryBuilder()
+            val where = builder?.where()
             var i = 0
             while (i < args.size) {
                 if (i == 0)
-                    where.eq(args[i], args[i + 1])
+                    where?.eq(args[i], args[i + 1])
                 else
-                    where.and().eq(args[i], args[i + 1])
+                    where?.and()?.eq(args[i], args[i + 1])
                 i += 2
             }
-            return dao.queryForFirst(builder.prepare())
+            return dao?.queryForFirst(builder?.prepare())
         } catch (e: SQLException) {
             e.printStackTrace()
         }

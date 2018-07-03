@@ -39,7 +39,7 @@ public class DBProxyHandler<T> implements InvocationHandler {
     public RealBaseDao<T> getProxy(Object targetObject) {
         this.obj = targetObject;
         Object proxy = Proxy.newProxyInstance(targetObject.getClass().getClassLoader(), targetObject.getClass().getInterfaces(), this);
-        return (RealBaseDao<T>)proxy;
+        return (RealBaseDao<T>) proxy;
     }
 
     @Override
@@ -47,41 +47,41 @@ public class DBProxyHandler<T> implements InvocationHandler {
         long startTime = getTime();
         doBefore();
         Object result = method.invoke(obj, args);
-        doAfter(method,result,startTime);
+        doAfter(method, result, startTime);
         return result;
     }
 
     /**
      * 执行前操作
      */
-    private void doBefore(){
+    private void doBefore() {
         prepareDeal();
     }
 
     /**
      * 执行后操作
      */
-    private void doAfter(Method method, Object result, long startTime){
-        if(result != null){
-            if(result instanceof Result){
+    private void doAfter(Method method, Object result, long startTime) {
+        if (result != null) {
+            if (result instanceof Result) {
                 Result<T> real = (Result<T>) result;
                 String methodName = method.getName();
-                if(Result.LINE == real.getType()){
-                    showLog(methodName+"["+(getTime()-startTime)+"ms] 影响行数："+real.getLine());
-                }else if(Result.COUNT == real.getType()){
-                    showLog(methodName+"["+(getTime()-startTime)+"ms] 影响行数："+real.getCount());
-                }else if(Result.LIST == real.getType()){
-                    showLog(methodName+"["+(getTime()-startTime)+"ms] 影响行数："+real.getList().size());
-                }else if(Result.IS_EXIST == real.getType()){
-                    showLog(methodName+"["+(getTime()-startTime)+"ms] ："+real.isExist());
-                }else{
-                    showLog(methodName+"["+(getTime()-startTime)+"ms] ");
+                if (Result.LINE == real.getType()) {
+                    showLog(methodName + "[" + (getTime() - startTime) + "ms] 影响行数：" + real.getLine());
+                } else if (Result.COUNT == real.getType()) {
+                    showLog(methodName + "[" + (getTime() - startTime) + "ms] 影响行数：" + real.getCount());
+                } else if (Result.LIST == real.getType()) {
+                    showLog(methodName + "[" + (getTime() - startTime) + "ms] 影响行数：" + real.getList().size());
+                } else if (Result.IS_EXIST == real.getType()) {
+                    showLog(methodName + "[" + (getTime() - startTime) + "ms] ：" + real.isExist());
+                } else {
+                    showLog(methodName + "[" + (getTime() - startTime) + "ms] ");
                 }
                 //异常处理
                 Exception exception = real.getException();
-                if(exception != null){
-                    if(exception instanceof ClassCastException){
-                        showErr("列值类型不正确："+ exception.getMessage());
+                if (exception != null) {
+                    if (exception instanceof ClassCastException) {
+                        showErr("列值类型不正确：" + exception.getMessage());
                     }
                     exception.printStackTrace();
                 }
@@ -92,54 +92,100 @@ public class DBProxyHandler<T> implements InvocationHandler {
     /**
      * 预处理
      */
-    private void prepareDeal(){
+    private void prepareDeal() {
         checkTable();
     }
 
     /**
      * 检查数据表
      */
-    private void checkTable(){
+    private void checkTable() {
         try {
-            if(!dao.isTableExists()){
-                TableUtils.createTableIfNotExists(dao.getConnectionSource(),mClass);
+            if (!dao.isTableExists()) {
+                TableUtils.createTableIfNotExists(dao.getConnectionSource(), mClass);
             }
+//            else {
+//                checkTableField(dao.getConnectionSource(), mClass);
+//            }
         } catch (Exception e) {
-            if(e instanceof SQLiteDiskIOException){
+            if (e instanceof SQLiteDiskIOException) {
                 //当用户误删除.db数据库文件时进行数据库恢复(若.db-journal日志文件删除则无法恢复)
 //                helper.onOpen(helper.getWritableDatabase());
                 SQLiteDatabase db = helper.getWritableDatabase();
-                helper.getWritableDatabase().openOrCreateDatabase(db.getPath(),null);
+                helper.getWritableDatabase().openOrCreateDatabase(db.getPath(), null);
                 try {
                     dao = helper.getDao(mClass);
-                    if(!dao.isTableExists()){
-                        TableUtils.createTableIfNotExists(dao.getConnectionSource(),mClass);
+                    if (!dao.isTableExists()) {
+                        TableUtils.createTableIfNotExists(dao.getConnectionSource(), mClass);
                     }
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
-                showErr("恢复数据库："+databaseName);
-            }else{
+                showErr("恢复数据库：" + databaseName);
+            } else {
                 e.printStackTrace();
             }
         }
     }
 
-    private long getTime(){
+//    /**
+//     * @param connectionSource
+//     * @param dataClass
+//     * @throws SQLException
+//     */
+//    private void checkTableField(ConnectionSource connectionSource, Class<T> dataClass) throws SQLException {
+//        if (dataClass != null) {
+//            Dao<T, ?> dao = DaoManager.createDao(connectionSource, dataClass);
+//            TableInfo tableInfo = null;
+//            if (dao instanceof BaseDaoImpl<?, ?>) {
+//                tableInfo = ((BaseDaoImpl<?, ?>) dao).getTableInfo();
+//            } else {
+//                tableInfo = new TableInfo<T, ?>(dao.getConnectionSource(), null, dao.getDataClass());
+//            }
+//            if (tableInfo != null) {
+//                // 检查该表是否有这个字段
+//                HashMap<String, Boolean> map = new HashMap<String, Boolean>();
+//                // 查询 现有的数据库表字段
+//                SQLiteDatabase db = helper.getWritableDatabase();
+//                Cursor columns = db.rawQuery("PRAGMA table_info(" + tableInfo.getTableName() + ")", null);
+//                while (columns.moveToNext()) {
+//                    map.put(columns.getString(1), false);
+//                }
+//                // 获取 class 的定义的表字段集合
+//
+////
+////                DatabaseType databaseType = connectionSource.getDatabaseType();
+////                List<String> statements = new ArrayList<String>();
+////                List<String> queriesAfter = new ArrayList<String>();
+////                addCreateTableStatements(databaseType, tableInfo, statements, queriesAfter, ifNotExists);
+////                DatabaseConnection connection = connectionSource.getReadWriteConnection(tableInfo.getTableName());
+////                try {
+////                    int stmtC = doStatements(connection, "create", statements, false,
+////                            databaseType.isCreateTableReturnsNegative(), databaseType.isCreateTableReturnsZero());
+////                    stmtC += doCreateTestQueries(connection, databaseType, queriesAfter);
+////                    return stmtC;
+////                } finally {
+////                    connectionSource.releaseConnection(connection);
+////                }
+//            }
+//        }
+//    }
+
+    private long getTime() {
         return System.currentTimeMillis();
     }
 
     /**
      * 打印日志
      */
-    private void showLog(String msg){
-        if(DBInnerUtils.Companion.getShowDBLog())
-            Log.d(DBInnerUtils.Companion.getLogTAG(),msg+" | "+mClass.getSimpleName()+" | "+databaseName);
+    private void showLog(String msg) {
+        if (DBInnerUtils.Companion.getShowDBLog())
+            Log.d(DBInnerUtils.Companion.getLogTAG(), msg + " | " + mClass.getSimpleName() + " | " + databaseName);
     }
 
-    private void showErr(String msg){
-        if(DBInnerUtils.Companion.getShowDBLog())
-            Log.e(DBInnerUtils.Companion.getLogTAG(),msg+" | "+mClass.getSimpleName()+" | "+databaseName);
+    private void showErr(String msg) {
+        if (DBInnerUtils.Companion.getShowDBLog())
+            Log.e(DBInnerUtils.Companion.getLogTAG(), msg + " | " + mClass.getSimpleName() + " | " + databaseName);
     }
 }
 

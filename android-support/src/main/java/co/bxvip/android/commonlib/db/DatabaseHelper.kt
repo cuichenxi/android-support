@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger
  *     time  : 18-1-31
  * </pre>
  */
-class DatabaseHelper : OrmLiteSqliteOpenHelper(ctx, ctx.externalCacheDir!!.path + "/" + DB_NAME, null, DB_VERSION) {
+class DatabaseHelper : OrmLiteSqliteOpenHelper(ctx, ctx.externalCacheDir?.path + "/" + DB_NAME, null, DB_VERSION) {
 
     override fun onCreate(database: SQLiteDatabase?, connectionSource: ConnectionSource?) {
 
@@ -36,7 +36,7 @@ class DatabaseHelper : OrmLiteSqliteOpenHelper(ctx, ctx.externalCacheDir!!.path 
                         updateSplitStrings.map { value ->
                             try {
                                 ACache.get(ctx).put("check-db-update-string-$it", "")
-                                database!!.execSQL(value)
+                                database?.execSQL(value)
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
@@ -45,7 +45,7 @@ class DatabaseHelper : OrmLiteSqliteOpenHelper(ctx, ctx.externalCacheDir!!.path 
                 }
             }
             if (count == 0) {
-                val cursor = database!!.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", null)
+                val cursor = database?.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", null)
                 if (cursor != null) {
                     if (cursor.moveToNext()) {
                         do {
@@ -54,7 +54,7 @@ class DatabaseHelper : OrmLiteSqliteOpenHelper(ctx, ctx.externalCacheDir!!.path 
                         } while (cursor.moveToNext())
                     }
                 }
-                cursor.close()
+                cursor?.close()
                 onCreate(database, connectionSource)
             }
         } catch (e: Exception) {
@@ -65,20 +65,20 @@ class DatabaseHelper : OrmLiteSqliteOpenHelper(ctx, ctx.externalCacheDir!!.path 
     private val counter = AtomicInteger() // 引用计数器
     private var db: SQLiteDatabase? = null
 
-    fun <T> use(f: SQLiteDatabase.() -> T): T {
+    fun <T> use(f: SQLiteDatabase.() -> T): T? {
         try {
-            return openDatabase().f()
+            return openDatabase()?.f()
         } finally {
             closeDatabase()
         }
     }
 
     @Synchronized
-    private fun openDatabase(): SQLiteDatabase {
+    private fun openDatabase(): SQLiteDatabase? {
         if (counter.incrementAndGet() == 1) {
             db = writableDatabase
         }
-        return db!!
+        return db
     }
 
     @Synchronized

@@ -1,7 +1,6 @@
 package co.bxvip.tools.permission
 
 
-
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
@@ -107,9 +106,14 @@ object SillyPermission {
 
     }
 
-    fun onDestroy(){
-        mPermissions = null
-        mSillyPermissionCall =null
+    /**
+     * 释放对象
+     */
+    fun onDestroy() {
+        if (mPermissions != null)
+            mPermissions = null
+        if (mSillyPermissionCall != null)
+            mSillyPermissionCall = null
     }
 
     /**

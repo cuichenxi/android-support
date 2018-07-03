@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.widget.ImageView;
@@ -38,10 +37,7 @@ public class BitmapCache {
      */
     public static void saveImageToGallery(Context context, Bitmap bmp, String fileName) {
         // 首先保存图片
-        File appDir = new File(Environment.getExternalStorageDirectory(), context.getPackageName());
-        if (!appDir.exists()) {
-            appDir.mkdir();
-        }
+        File appDir = Storage.getImageLoaderCache(context, context.getPackageName());
         File file = new File(appDir, fileName);
         if (!file.exists()) {
             try {
@@ -74,7 +70,7 @@ public class BitmapCache {
      */
     public static void saveBitmapToLocal(Context context, String fileName, Bitmap bitmap) {
         if (TextUtils.isEmpty(BITMAP_PAHT)) {
-            BITMAP_PAHT = context.getExternalCacheDir().getAbsolutePath() + "/lottery/icon_pics";
+            BITMAP_PAHT = Storage.getImageLoaderCache(context, context.getPackageName()).getAbsolutePath() + "/lottery/icon_pics";
         }
         saveBitmapToLocal(context, BITMAP_PAHT, fileName, bitmap);
     }
@@ -87,7 +83,7 @@ public class BitmapCache {
      */
     public static void saveBitmapToLocal(Context context, String fileName, Bitmap bitmap, int quality) {
         if (TextUtils.isEmpty(BITMAP_PAHT)) {
-            BITMAP_PAHT = context.getExternalCacheDir().getAbsolutePath() + "/lottery/icon_pics";
+            BITMAP_PAHT = Storage.getImageLoaderCache(context, context.getPackageName()).getAbsolutePath() + "/lottery/icon_pics";
         }
         saveBitmapToLocal(context, BITMAP_PAHT, fileName, bitmap, quality);
     }
@@ -101,7 +97,7 @@ public class BitmapCache {
      */
     public static void saveBitmapToLocal(Context context, String filePath, String fileName, Bitmap bitmap, int quality) {
         if (TextUtils.isEmpty(BITMAP_PAHT)) {
-            BITMAP_PAHT = context.getExternalCacheDir().getAbsolutePath() + "/lottery/icon_pics";
+            BITMAP_PAHT = Storage.getImageLoaderCache(context, context.getPackageName()).getAbsolutePath() + "/lottery/icon_pics";
         }
         try {
             // 创建文件流，指向该路径，文件名叫做fileName
@@ -129,7 +125,7 @@ public class BitmapCache {
      */
     public static void saveBitmapToLocal(Context context, String filePath, String fileName, Bitmap bitmap) {
         if (TextUtils.isEmpty(BITMAP_PAHT)) {
-            BITMAP_PAHT = context.getExternalCacheDir().getAbsolutePath() + "/lottery/icon_pics";
+            BITMAP_PAHT = Storage.getImageLoaderCache(context, context.getPackageName()).getAbsolutePath() + "/lottery/icon_pics";
         }
         try {
             // 创建文件流，指向该路径，文件名叫做fileName
@@ -141,8 +137,7 @@ public class BitmapCache {
                 fileParent.mkdirs();// 创建文件夹
             }
             // 将图片保存到本地
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100,
-                    new FileOutputStream(file));
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -154,7 +149,7 @@ public class BitmapCache {
     * */
     public static Bitmap getBitmapFromLocal(Context context, String fileName) {
         if (TextUtils.isEmpty(BITMAP_PAHT)) {
-            BITMAP_PAHT = context.getExternalCacheDir().getAbsolutePath() + "/lottery/icon_pics";
+            BITMAP_PAHT = Storage.getImageLoaderCache(context, context.getPackageName()).getAbsolutePath() + "/lottery/icon_pics";
         }
         if (fileName != null)
             try {
