@@ -5,10 +5,10 @@ import co.bxvip.android.commonlib.db.utils.DBInnerUtils.Companion.DB_NAME
 import co.bxvip.android.commonlib.db.utils.DBInnerUtils.Companion.DB_VERSION
 import co.bxvip.android.commonlib.db.utils.DBInnerUtils.Companion.ctx
 import co.bxvip.android.commonlib.db.utils.DBInnerUtils.Companion.dbInstance
-import co.bxvip.tools.ACache
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper
 import com.j256.ormlite.support.ConnectionSource
 import java.util.concurrent.atomic.AtomicInteger
+
 
 /**
  * <pre>
@@ -24,39 +24,23 @@ class DatabaseHelper : OrmLiteSqliteOpenHelper(ctx, ctx.externalCacheDir?.path +
 
     override fun onUpgrade(database: SQLiteDatabase?, connectionSource: ConnectionSource?, oldVersion: Int, newVersion: Int) {
         try {
-            var count = 0
-            (oldVersion until newVersion).map {
-                val updateString = ACache.get(ctx).getAsString("check-db-update-string-$it")// version:updateString;updateString;updateString
-                if (updateString != null && updateString != "") {
-                    val split = updateString.split(":")
-                    val updateVersion = split[0]
-                    val updateSplitStrings = split[0].split(";")
-                    if (oldVersion < updateVersion.toInt()) {
-                        count++
-                        updateSplitStrings.map { value ->
+            val cursor = database?.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", null)
+            if (cursor != null) {
+                if (cursor.moveToNext()) {
+                    do {
+                        val tableName = cursor.getString(0)
+                        if (!arrayOf("keyvaluecache", "android_metadata").contains(tableName)) {
                             try {
-                                ACache.get(ctx).put("check-db-update-string-$it", "")
-                                database?.execSQL(value)
+                                database.execSQL("DROP TABLE IF EXISTS $tableName")
                             } catch (e: Exception) {
-                                e.printStackTrace()
+
                             }
                         }
-                    }
+                    } while (cursor.moveToNext())
                 }
             }
-            if (count == 0) {
-                val cursor = database?.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", null)
-                if (cursor != null) {
-                    if (cursor.moveToNext()) {
-                        do {
-                            if (cursor.getString(0) != null)
-                                database.execSQL("DROP TABLE IF EXISTS ${cursor.getString(0)}")
-                        } while (cursor.moveToNext())
-                    }
-                }
-                cursor?.close()
-                onCreate(database, connectionSource)
-            }
+            cursor?.close()
+            onCreate(database, connectionSource)
         } catch (e: Exception) {
             e.printStackTrace()
         }
