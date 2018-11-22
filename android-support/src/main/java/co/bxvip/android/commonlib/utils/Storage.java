@@ -30,16 +30,23 @@ import java.io.File;
  */
 public class Storage {
     private static final String IMAGELOADER_SEPARATOR = "imageloader";
-    private static final String DATABASE_SEPARATOR = "database";
+    private static final String DATABASE_SEPARATOR = "cache";
 
     /**
      * 得到该应用的缓存根目录 * * @param context 上下文 * @param appName 应用名称 * @return 应用的缓存根目录
      */
     public static File getRootCache(Context context, String appName) {
         String appDirRootPath;
+        if (context != null) {
+            try {
+                context.getExternalCacheDir();
+                context.getCacheDir();
+            } catch (Exception e) {
+            }
+        }
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
-            appDirRootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "Android" + File.separator+ "data" + File.separator + appName + File.separator;
+            appDirRootPath = Environment.getExternalStorageDirectory().getPath() + File.separator + "Android" + File.separator + "data" + File.separator + appName + File.separator;
         } else {
             appDirRootPath = context.getCacheDir().getPath() + File.separator + appName + File.separator;
         }
