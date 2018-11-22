@@ -5,6 +5,7 @@ import co.bxvip.android.commonlib.db.utils.DBInnerUtils.Companion.DB_NAME
 import co.bxvip.android.commonlib.db.utils.DBInnerUtils.Companion.DB_VERSION
 import co.bxvip.android.commonlib.db.utils.DBInnerUtils.Companion.ctx
 import co.bxvip.android.commonlib.db.utils.DBInnerUtils.Companion.dbInstance
+import co.bxvip.android.commonlib.utils.Storage
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper
 import com.j256.ormlite.support.ConnectionSource
 import java.util.concurrent.atomic.AtomicInteger
@@ -16,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger
  *     time  : 18-1-31
  * </pre>
  */
-class DatabaseHelper : OrmLiteSqliteOpenHelper(ctx, ctx.externalCacheDir?.path + "/" + DB_NAME, null, DB_VERSION) {
+class DatabaseHelper : OrmLiteSqliteOpenHelper(ctx, Storage.getDataBaseCache(ctx, ctx.packageName).absolutePath + "/" + DB_NAME, null, DB_VERSION) {
 
     override fun onCreate(database: SQLiteDatabase?, connectionSource: ConnectionSource?) {
 
