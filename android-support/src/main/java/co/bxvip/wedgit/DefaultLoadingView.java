@@ -9,7 +9,8 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import static android.support.v7.widget.builder.RecycleViewDimen.dip2Px;
+import co.bxvip.tools.DisplayUtils;
+
 
 /**
  * <pre>
@@ -33,7 +34,7 @@ public class DefaultLoadingView extends LinearLayout {
 
     public DefaultLoadingView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dip2Px(getResources(), 40));
+        LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, DisplayUtils.dip2px(getContext(), 40));
         params.gravity = Gravity.RIGHT;
         setLayoutParams(params);
         // loading view
@@ -43,7 +44,7 @@ public class DefaultLoadingView extends LinearLayout {
         params.weight = 1;
         layout.addView(new View(context), params);
         // load view
-        params = new LayoutParams(dip2Px(getResources(), 35), dip2Px(getResources(), 35));
+        params = new LayoutParams(DisplayUtils.dip2px(getContext(), 35), DisplayUtils.dip2px(getContext(), 35));
         params.gravity = Gravity.CENTER_VERTICAL;
         layout.addView(loadingView = new BxToolIconView(context), params);
         loadingView.createCircleProgressBar().startProgressRun();
@@ -80,7 +81,7 @@ public class DefaultLoadingView extends LinearLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int minWH = dip2Px(getResources(), 40);
+        int minWH = DisplayUtils.dip2px(getContext(), 40);
 //        // 父容器传过来的宽度方向上的模式
 //        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 //        // 父容器传过来的高度方向上的模式

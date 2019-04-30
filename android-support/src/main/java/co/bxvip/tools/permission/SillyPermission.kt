@@ -15,6 +15,8 @@ import android.support.v4.content.ContextCompat
 import android.util.Log
 import java.util.*
 
+
+
 object SillyPermission {
 
     private const val TAG = "SillyPermission"

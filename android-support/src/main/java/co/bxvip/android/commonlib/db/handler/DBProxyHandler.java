@@ -2,11 +2,6 @@ package co.bxvip.android.commonlib.db.handler;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDiskIOException;
-import android.util.Log;
-
-import co.bxvip.android.commonlib.db.dao.RealBaseDao;
-import co.bxvip.android.commonlib.db.info.Result;
-import co.bxvip.android.commonlib.db.utils.DBInnerUtils;
 
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -16,6 +11,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.SQLException;
+
+import co.bxvip.android.commonlib.db.dao.RealBaseDao;
+import co.bxvip.android.commonlib.db.info.Result;
 
 /**
  * @description : 数据库操作代理类：主要进行预处理、日志打印
@@ -179,13 +177,13 @@ public class DBProxyHandler<T> implements InvocationHandler {
      * 打印日志
      */
     private void showLog(String msg) {
-        if (DBInnerUtils.Companion.getShowDBLog())
-            Log.d(DBInnerUtils.Companion.getLogTAG(), msg + " | " + mClass.getSimpleName() + " | " + databaseName);
+//        if (DBInnerUtils.Companion.getShowDBLog())
+//            Log.d(DBInnerUtils.Companion.getLogTAG(), msg + " | " + mClass.getSimpleName() + " | " + databaseName);
     }
 
     private void showErr(String msg) {
-        if (DBInnerUtils.Companion.getShowDBLog())
-            Log.e(DBInnerUtils.Companion.getLogTAG(), msg + " | " + mClass.getSimpleName() + " | " + databaseName);
+//        if (DBInnerUtils.Companion.getShowDBLog())
+//            Log.e(DBInnerUtils.Companion.getLogTAG(), msg + " | " + mClass.getSimpleName() + " | " + databaseName);
     }
 }
 

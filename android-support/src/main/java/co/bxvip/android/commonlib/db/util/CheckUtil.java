@@ -2,9 +2,6 @@ package co.bxvip.android.commonlib.db.util;
 
 import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Log;
-
-import co.bxvip.android.commonlib.db.utils.DBInnerUtils;
 
 /**
  * 检测工具类
@@ -31,8 +28,8 @@ public class CheckUtil {
      * 打印日志
      */
     private static void doLog(String msg) {
-        if (DBInnerUtils.Companion.getShowDBLog())
-            Log.d(DBInnerUtils.Companion.getLogTAG(), msg);
+//        if (DBInnerUtils.Companion.getShowDBLog())
+//            Log.d(DBInnerUtils.Companion.getLogTAG(), msg);
     }
 
 
