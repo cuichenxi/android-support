@@ -17,6 +17,7 @@ dependencies {
     compileOnly files(androidJar)
     compileOnly zxing, ormLiteLibs, glide, gson
     compileOnly repluginplugin
+    compileOnly 'com.github.cuichenxi:android-support:adsp-SNAPSHOT'
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
